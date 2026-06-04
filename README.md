@@ -1,11 +1,13 @@
-# Claude Conversation Extractor - Export Claude Code Conversations to Markdown | Save Chat History
+# Claude Conversation Extractor - Export Claude Code Conversations
 
-> 🚀 **The ONLY tool to export Claude Code conversations**. Extract Claude chat history from ~/.claude/projects, search through logs, and backup your AI programming sessions.
+Export Claude Code conversations from `~/.claude/projects`, search local chat history, and save sessions as Markdown, JSON, or HTML.
 
-## 🎮 Two Ways to Use
+## 🎮 Ways to Use
 
 - **`claude-start`** - Interactive UI with ASCII art logo, real-time search, and menu-driven interface (recommended)
-- **`claude-extract`** - Plain CLI for command-line operations and scripting
+- **`claude-extract`** - Interactive UI by default, with CLI flags for listing, exporting, searching, and scripting
+- **`claude-search`** - Direct search command for finding and viewing matching conversations
+- **`claude-logs`** - Backward-compatible alias for `claude-extract`
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -15,9 +17,9 @@
 [![Export Claude Code](https://img.shields.io/badge/Export-Claude%20Code%20Conversations-blue)](https://github.com/ZeroSumQuant/claude-conversation-extractor)
 [![Claude Code Logs](https://img.shields.io/badge/Backup-Claude%20Code%20Logs-green)](https://github.com/ZeroSumQuant/claude-conversation-extractor)
 
-**Export Claude Code conversations with the #1 extraction tool.** Claude Code stores chats in ~/.claude/projects as JSONL files with no export button - this tool solves that.
+Claude Code stores local chats in `~/.claude/projects` as JSONL files. This tool reads those files locally and turns them into readable exports.
 
-🔥 **What users search for:** [Export Claude conversations](#how-to-export-claude-code-conversations) | [Claude Code logs location](#where-are-claude-code-logs-stored) | [Backup Claude sessions](#backup-all-claude-conversations) | [Claude JSONL to Markdown](#convert-claude-jsonl-to-markdown)
+🔥 **What users search for:** [Export Claude conversations](#how-to-export-claude-code-conversations) | [Claude Code logs location](#where-are-claude-code-logs-stored) | [Backup Claude sessions](#how-to-backup-all-claude-code-sessions) | [Claude JSONL exports](#export-formats)
 
 ## 📸 How to Export Claude Code Conversations - Demo
 
@@ -31,11 +33,10 @@
 - ❌ **Backup Claude Code logs** for documentation or sharing
 - ❌ **Convert Claude JSONL to Markdown** for readable archives
 
-## ✅ Claude Conversation Extractor: The First Export Tool for Claude Code
+## ✅ Claude Conversation Extractor
 
-This is the **ONLY tool that exports Claude Code conversations**:
 - ✅ **Finds Claude Code logs** automatically in ~/.claude/projects
-- ✅ **Extracts Claude conversations** to clean Markdown files
+- ✅ **Extracts Claude conversations** to Markdown, JSON, or HTML
 - ✅ **Searches Claude chat history** with real-time results
 - ✅ **Backs up all Claude sessions** with one command
 - ✅ **Works on Windows, macOS, Linux** - wherever Claude Code runs
@@ -43,13 +44,14 @@ This is the **ONLY tool that exports Claude Code conversations**:
 ## ✨ Features for Claude Code Users
 
 - **🔍 Real-Time Search**: Search Claude conversations as you type - no flags needed
-- **📝 Claude JSONL to Markdown**: Clean export without terminal artifacts
+- **📝 Claude JSONL exports**: Markdown, JSON, and HTML output formats
 - **⚡ Find Any Chat**: Search by content, date, or conversation name
 - **📦 Bulk Export**: Extract all Claude Code conversations at once
-- **🎯 Zero Config**: Just run `claude-extract` - we find everything automatically
+- **🎯 Zero Config**: Just run `claude-start` or `claude-extract` - we find everything automatically
 - **🚀 No Dependencies**: Pure Python - no external packages required
 - **🖥️ Cross-Platform**: Export Claude Code logs on any OS
-- **📊 97% Test Coverage**: Reliable extraction you can trust
+- **🔎 Advanced Search Flags**: Regex, date filters, speaker filters, and case-sensitive search from the CLI
+- **🧾 Detailed Mode**: Include tool use, tool results, system events, todo reminders, file attachments, API errors, and metadata
 
 ## 📦 Install Claude Conversation Extractor
 
@@ -112,18 +114,22 @@ pipx install claude-conversation-extractor
 # Run the interactive UI with ASCII art logo and real-time search
 claude-start
 
-# Run the standard CLI interface
+# claude-extract also opens the interactive UI when run without arguments
 claude-extract
 
 # Search for specific content directly
 claude-search "API integration"
 
-# Note: claude-logs also works for backward compatibility
+# Launch the real-time search UI directly
+claude-extract search
+
+# Backward-compatible alias
+claude-logs
 ```
 
 That's it! The tool will:
 1. Find your Claude Code conversations in ~/.claude/projects
-2. Show an interactive menu to search or export
+2. Show an interactive menu to choose an output folder and select sessions
 3. Convert Claude JSONL files to readable Markdown, JSON, or HTML
 
 ### Export Claude Code Logs - All Methods
@@ -132,8 +138,8 @@ That's it! The tool will:
 # Interactive mode with UI - easiest way to export Claude conversations
 claude-start
 
-# CLI mode - command-line interface
-claude-extract
+# Limit the list output
+claude-extract --list --limit 10
 
 # List all Claude Code conversations
 claude-extract --list
@@ -149,9 +155,13 @@ claude-extract --all
 
 # Save Claude logs to custom location
 claude-extract --output ~/my-claude-backups
+
+# Launch the interactive UI explicitly
+claude-extract --interactive
+claude-extract --export logs
 ```
 
-### 📄 Export Formats - NEW in v1.1.1!
+### 📄 Export Formats
 
 Export conversations in multiple formats:
 
@@ -172,13 +182,13 @@ claude-extract --format html --detailed --recent 5
 **Supported Formats:**
 - **Markdown** (default) - Clean, readable text format
 - **JSON** - Structured data for analysis and processing
-- **HTML** - Beautiful web-viewable format with syntax highlighting
+- **HTML** - Web-viewable transcript with dark styling, code copy buttons, and MathJax support
 
 **Detailed Mode (`--detailed`):**
 Includes complete conversation transcript with:
 - Tool use invocations and parameters
-- MCP server responses
-- System messages and errors
+- Tool results and MCP-style responses
+- System messages, metadata events, todo reminders, file attachments, and API errors
 - Terminal command outputs
 - All metadata from the conversation
 
@@ -192,24 +202,34 @@ claude-search                    # Prompts for search term
 claude-search "zig build"        # Search for specific term
 claude-search "error handling"   # Multi-word search
 
-# Method 2: From interactive menu
-claude-extract
+# Method 2: CLI search flags
+claude-extract --search "python error"
+claude-extract --search-regex "import.*requests"
+claude-extract --search "refactor" --search-date-from 2025-01-01 --search-date-to 2025-12-31
+claude-extract --search "tests" --search-speaker assistant --case-sensitive
+
+# Method 3: From interactive menu
+claude-start
 # Select "Search conversations" for real-time search
+
+# Method 4: Direct real-time search UI
+claude-extract search
 ```
 
 **Search features:**
 - Fast full-text search across all conversations
 - Case-insensitive by default
-- Finds exact matches, partial matches, and patterns
+- Finds smart text matches and regex patterns
+- Optional date, speaker, and case-sensitive filters in `claude-extract`
 - Shows match previews and conversation context
 - Option to extract matching sessions directly
 
 ## 📁 Where Are Claude Code Logs Stored?
 
 ### Claude Code Default Locations:
-- **macOS/Linux**: `~/.claude/projects/*/chat_*.jsonl`
-- **Windows**: `%USERPROFILE%\.claude\projects\*\chat_*.jsonl`
-- **Format**: Undocumented JSONL with base64 encoded content
+- **macOS/Linux**: `~/.claude/projects/**/*.jsonl`
+- **Windows**: `%USERPROFILE%\.claude\projects\**\*.jsonl`
+- **Format**: Undocumented JSONL records used by Claude Code
 
 ### Exported Claude Conversation Locations:
 ```text
@@ -219,6 +239,8 @@ claude-extract
 ├── Claude responses with 🤖 prefix
 └── Clean Markdown formatting
 ```
+
+If `~/Desktop/Claude logs` cannot be created, the extractor tries `~/Documents/Claude logs`, `~/Claude logs`, and then `./claude-logs`. In the interactive UI you can choose Desktop, Documents, Downloads, the current directory, or a custom path.
 
 ## ❓ Frequently Asked Questions
 
@@ -245,7 +267,7 @@ Run `claude-extract --all` to export every conversation at once, or use the inte
 No, this tool specifically exports Claude Code (desktop app) conversations. Claude.ai has its own export feature in settings.
 
 ### Can I convert Claude JSONL to other formats?
-Yes! Version 1.1.1 supports multiple export formats:
+Yes. Version 1.1.2 supports multiple export formats:
 - **Markdown** - Default clean text format
 - **JSON** - Structured data with timestamps and metadata  
 - **HTML** - Beautiful web-viewable format with modern styling
@@ -254,14 +276,14 @@ Use `--format json` or `--format html` when extracting.
 ### Is this tool official?
 No, this is an independent open-source tool. It reads the local Claude Code files on your computer - no API or internet required.
 
-## 📊 Why This is the Best Claude Code Export Tool
+## 📊 Claude Code Export Options
 
 | Feature | Claude Conversation Extractor | Manual Copy | Claude.ai Export |
 |---------|------------------------------|-------------|------------------|
 | Works with Claude Code | ✅ Full support | ✅ Tedious | ❌ Different product |
 | Bulk export | ✅ All conversations | ❌ One at a time | ❌ N/A |
 | Search capability | ✅ Real-time search | ❌ None | ❌ N/A |
-| Clean formatting | ✅ Perfect Markdown | ❌ Terminal artifacts | ❌ N/A |
+| Clean formatting | ✅ Markdown/JSON/HTML | ❌ Terminal artifacts | ❌ N/A |
 | Zero configuration | ✅ Auto-detects | ❌ Manual process | ❌ N/A |
 | Cross-platform | ✅ Win/Mac/Linux | ✅ Manual works | ❌ N/A |
 
@@ -271,9 +293,9 @@ No, this is an independent open-source tool. It reads the local Claude Code file
 
 1. **Locates Claude Code logs**: Scans ~/.claude/projects for JSONL files
 2. **Parses undocumented format**: Handles Claude's internal data structure
-3. **Extracts conversations**: Preserves user inputs and Claude responses
-4. **Converts to Markdown**: Clean format without terminal escape codes
-5. **Enables search**: Indexes content for instant searching
+3. **Extracts conversations**: Preserves user inputs, Claude responses, and optional detailed records
+4. **Converts output**: Saves Markdown, JSON, or HTML files
+5. **Enables search**: Searches local JSONL content with smart, exact, regex, or optional semantic matching
 
 ### Requirements
 - Python 3.8+ (works with 3.9, 3.10, 3.11, 3.12)
@@ -302,7 +324,7 @@ python3 -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # Install dev dependencies
-pip install -r requirements-dev.txt
+pip install -r requirements/dev.txt
 
 # Run tests
 pytest
@@ -337,21 +359,22 @@ See [INSTALL.md](docs/user/INSTALL.md) for:
 
 ## 📈 Roadmap for Claude Code Export Tool
 
-### ✅ Completed in v1.1.1
+### ✅ Completed in v1.1.2
 - [x] Export Claude Code conversations to Markdown
 - [x] Real-time search for Claude chat history  
 - [x] Bulk export all Claude sessions
 - [x] Export to JSON format with metadata
-- [x] Export to HTML with beautiful formatting
+- [x] Export to HTML with dark styling, MathJax support, and code copy buttons
 - [x] Detailed transcript mode with tool use/MCP responses
 - [x] Direct search command (`claude-search`)
+- [x] CLI search filters for regex, dates, speaker, and case sensitivity
 
 ### 🚧 Planned Features
 - [ ] Export to PDF format
 - [ ] Automated daily backups of Claude conversations
 - [ ] Integration with Obsidian, Notion, Roam
 - [ ] Watch mode for auto-export of new conversations
-- [ ] Filter by date range (--after, --before flags)
+- [ ] Dedicated export date range flags (`--after`, `--before`)
 - [ ] Export statistics and analytics dashboard
 
 ## ⚖️ Legal Disclaimer
